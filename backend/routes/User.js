@@ -1,16 +1,21 @@
 const router = require("express").Router();
 const User = require("../model/User");
 var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
 
-router.post('/register',async(req,res)=>{
-    // checking user email id in database
+router.post("/register", async (req, res) => {
+  // checking user email id in database
   const emailExit = await User.findOne({
     email: req.body.email
   });
-  if (emailExit) return res.status(203).json("Email already exists");
-   // create new user
+
+  if (emailExit) return res.status(400).send("Email already exists");
+
+  // hash password
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(req.body.password, salt);
+
+  // create new user
   const user = new User({
     name: req.body.name,
     email: req.body.email,
@@ -19,10 +24,24 @@ router.post('/register',async(req,res)=>{
 
   try {
     const savedUser = await user.save();
-    res.status(201).json(savedUser);
+    res.send(savedUser);
   } catch (error) {
     res.status(400).send(error);
   }
-})
+});
 
+// user login
+router.post("/login", async (req, res) => {
+  // checking user email id in database
+  const user = await User.findOne({ email: req.body.email });
+  if (!user) return res.status(400).json("Email is wrong");
+
+  // checking password
+  const validPass = await bcrypt.compare(req.body.password, user.password);
+  if (!validPass) return res.status(400).json("Invalid password");
+
+  // creat and assign a token
+  const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET);
+  res.header("Authorization", token).json({ token: token });
+});
 module.exports = router;

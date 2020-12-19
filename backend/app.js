@@ -1,8 +1,12 @@
 const express =require('express');
 const app = express();
 const bodyParser = require("body-parser")
-//Middleware
+const cors = require("cors");
+
+// Middlewares
 app.use(express.json());
+app.use(cors());
+
 const dotenv = require('dotenv');
 dotenv.config();
 const mongoose = require('mongoose')

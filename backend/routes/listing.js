@@ -1,9 +1,10 @@
 const express = require('express');
 var router =express.Router();
+const verify = require("../routes/verifyToken");
 
 var Listing =require('../model/listing');
 // Get All Listing
-router.get('/get-listing',async(req,res)=>{
+router.get('/get-listing',verify,async(req,res)=>{
     try {
         let GetListing = await Listing.find();
         res.status(200).send(GetListing);
@@ -14,7 +15,7 @@ router.get('/get-listing',async(req,res)=>{
 });
 
 // Add All Listing
-router.post('/add-listing',async(req,res)=>{
+router.post('/add-listing',verify,async(req,res)=>{
      try {
         const listing = new Listing({
             'title':req.body.title,
@@ -34,7 +35,7 @@ router.post('/add-listing',async(req,res)=>{
 });
 
 // single listing
-router.get('/:listingid', async(req,res)=>{
+router.get('/:listingid',verify, async(req,res)=>{
     try {
         let GetListingID = await Listing.findById(req.params.listingid);
         res.status(200).send(GetListingID);
@@ -46,7 +47,7 @@ router.get('/:listingid', async(req,res)=>{
 });
 
 // Update listing
-router.put("/:listingId", async (req, res) => {
+router.put("/:listingId",verify, async (req, res) => {
     try {
       const listing = {
         title: req.body.title,
@@ -66,7 +67,7 @@ router.put("/:listingId", async (req, res) => {
   });
 
 // Delete listing
-router.delete("/:listingId", async (req, res) => {
+router.delete("/:listingId",verify, async (req, res) => {
     try {
       const removeListing = await Listing.findByIdAndDelete(req.params.listingId);
       res.status(203).json(removeListing);
